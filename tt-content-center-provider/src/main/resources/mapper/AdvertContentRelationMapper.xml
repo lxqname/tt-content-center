@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.AdvertContentRelationMapper">
+    <resultMap type="com.deepexi.content.domain.dto.AdvertContentRelationDto" id="AdvertContentRelationDtoResult">
+        <result property="id" column="id" />
+        <result property="setType" column="set_type" />
+        <result property="setTypeId" column="set_type_id" />
+        <result property="advertType" column="advert_type" />
+        <result property="advertId" column="advert_id" />
+        <result property="weight" column="weight" />
+        <result property="tenantCode" column="tenant_code" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="version" column="version" />
+        <result property="dr" column="dr" />
+    </resultMap>
+    <sql id="Base_Column_List">
+       id,
+       set_type,
+       set_type_id,
+       advert_type,
+       advert_id,
+       weight,
+       tenant_code,
+       created_at,
+       created_by,
+       updated_at,
+       updated_by,
+       version,
+       dr
+    </sql>
+
+
+    <select id="getBySetTypeId" resultType="com.deepexi.content.domain.eo.AdvertContentRelation">
+        SELECT <include refid="Base_Column_List"/>
+        FROM coc_advert_content_relation
+        WHERE dr = 0
+        AND set_type_id = #{setTypeId}
+        AND tenant_code = #{tenantId}
+        ORDER BY weight DESC
+    </select>
+
+    <select id="getAdvertIdBySetTypeId" resultType="java.lang.String">
+        SELECT advert_id
+        FROM coc_advert_content_relation
+        WHERE dr = 0
+        AND set_type_id = #{setTypeId}
+        AND tenant_code = #{tenantId}
+    </select>
+    
+    <update id="deleteBySetTypeId">
+        UPDATE coc_advert_content_relation
+        set dr=1
+        where set_type_id = #{setTypeId}
+    </update>
+
+    <select id="getIdBySetTypeId" resultType="java.lang.String">
+        SELECT id
+        FROM coc_advert_content_relation
+        WHERE dr = 0
+        AND set_type_id = #{id}
+        AND tenant_code = #{tenantId}
+        ORDER BY weight DESC
+    </select>
+
+    <select id="getSetTypeIdByAdvertId" resultType="java.lang.String">
+        SELECT set_type_id
+        FROM coc_advert_content_relation
+        WHERE dr = 0
+        AND advert_id = #{id}
+        AND tenant_code = #{tenantId}
+        ORDER BY weight ASC
+        limit 9
+    </select>
+
+    <select id="getAdvertTypeBySetTypeId" resultType="java.lang.Integer">
+        SELECT advert_type
+        FROM coc_advert_content_relation
+        WHERE dr = 0
+        AND set_type_id = #{id}
+        AND tenant_code = #{tenantId}
+    </select>
+
+</mapper>

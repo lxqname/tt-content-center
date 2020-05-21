@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.BannerManageSetRelationMapper">
+    <resultMap type="com.deepexi.content.domain.dto.BannerManageSetRelationDto" id="BannerManageSetRelationDtoResult">
+        <result property="id" column="id" />
+        <result property="manageId" column="manage_id" />
+        <result property="setId" column="set_id" />
+        <result property="tenantCode" column="tenant_code" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="version" column="version" />
+        <result property="dr" column="dr" />
+    </resultMap>
+    <sql id="Base_Column_List">
+      id,      manage_id,      set_id,      tenant_code,      created_at,      created_by,      updated_at,      updated_by,      version,      dr    </sql>
+    <select id="findList" resultType="com.deepexi.content.domain.eo.BannerManageSetRelation">
+        SELECT <include refid="Base_Column_List"/> FROM coc_banner_manage_set_relation WHERE dr=0
+    </select>
+    <update id="deleteByIds">
+        UPDATE banner_manage set dr=1 where id in
+        <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+    <select id="getSetIdByManageId" resultType="java.lang.String">
+        SELECT set_id
+        FROM coc_banner_manage_set_relation
+        WHERE manage_id = #{manageId}
+        AND dr=0
+        AND tenant_code = #{tenantId}
+    </select>
+    <update id="deleteByBannerSetId">
+        UPDATE coc_banner_manage_set_relation
+        set dr=1
+        where set_id = #{id}
+        AND tenant_code = #{tenantId}
+    </update>
+
+</mapper>

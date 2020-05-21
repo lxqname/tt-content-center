@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.DivUrlMapper">
+    <resultMap type="com.deepexi.content.domain.dto.DivUrlDto" id="DivUrlDtoResult">
+        <result property="id" column="id" />
+        <result property="divUrl" column="div_url" />
+        <result property="tenantCode" column="tenant_code" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="version" column="version" />
+        <result property="dr" column="dr" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+      id,      div_url,      tenant_code,      created_at,      created_by,      updated_at,      updated_by,      version,      dr    </sql>
+
+    <select id="getDivUrlById" resultType="com.deepexi.content.domain.eo.DivUrl">
+        SELECT <include refid="Base_Column_List"/> FROM coc_div_url
+        LEFT JOIN coc_advert_content_relation
+        ON coc_div_url.id = coc_advert_content_relation.advert_id = SELECT advert_id FROM coc_div_url WHERE set_type_id = #{setTypeId}
+        WHERE dr=0 AND id = #{advertId}
+        AND tenant_code = #{tenantId}
+    </select>
+
+    <update id="deleteByIds">
+        UPDATE coc_div_url
+        set dr=1
+        where id
+        in
+        <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="getByUrl" resultType="java.lang.String">
+        SELECT id
+        FROM coc_div_url
+        WHERE dr=0
+        AND div_url = #{url}
+        AND tenant_code = #{tenantId}
+    </select>
+
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.ManageSetRelationMapper">
+    <resultMap type="com.deepexi.content.domain.dto.ManageSetRelationDto" id="ManageSetRelationDtoResult">
+        <result property="id" column="id" />
+        <result property="manageId" column="manage_id" />
+        <result property="setId" column="set_id" />
+        <result property="tenantCode" column="tenant_code" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="version" column="version" />
+        <result property="dr" column="dr" />
+    </resultMap>
+    <sql id="Base_Column_List">
+      id,      manage_id,      set_id,      tenant_code,      created_at,      created_by,      updated_at,      updated_by,      version,      dr    </sql>
+    <select id="findList" resultType="com.deepexi.content.domain.eo.ManageSetRelation">
+        SELECT <include refid="Base_Column_List"/> FROM manage_set_relation WHERE dr=0
+    </select>
+    <insert id="batchInsert">
+        INSERT INTO manage_set_relation
+        (        id,        manage_id,        set_id,        tenant_code,        created_at,        created_by,        updated_at,        updated_by,        version,        dr)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+            (            #{value.id},            #{value.manageId},            #{value.setId},            #{value.tenantCode},            #{value.createdAt},            #{value.createdBy},            #{value.updatedAt},            #{value.updatedBy},            #{value.version},            #{value.dr})
+        </foreach>
+    </insert>
+    <update id="batchUpdate">
+        INSERT INTO manage_set_relation
+        (        id,        manage_id,        set_id,        tenant_code,        created_at,        created_by,        updated_at,        updated_by,        version,        dr)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+            (            #{value.id},            #{value.manageId},            #{value.setId},            #{value.tenantCode},            #{value.createdAt},            #{value.createdBy},            #{value.updatedAt},            #{value.updatedBy},            #{value.version},            #{value.dr})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            id=values(id),            manage_id=values(manage_id),            set_id=values(set_id),            tenant_code=values(tenant_code),            created_at=values(created_at),            created_by=values(created_by),            updated_at=values(updated_at),            updated_by=values(updated_by),            version=values(version),            dr=values(dr)    </update>
+    <update id="deleteByIds">
+        UPDATE manage_set_relation set dr=1 where id in
+        <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

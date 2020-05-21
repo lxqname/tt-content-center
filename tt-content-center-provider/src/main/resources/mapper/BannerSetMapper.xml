@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.BannerSetMapper">
+    <resultMap type="com.deepexi.content.domain.dto.BannerSetDto" id="BannerSetDtoResult">
+        <result property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="abbreviate" column="abbreviate" />
+        <result property="imgUrl" column="img_url" />
+        <result property="thumbnail" column="thumbnail" />
+        <result property="startTime" column="start_time" />
+        <result property="endTime" column="end_time" />
+        <result property="status" column="status" />
+        <result property="weight" column="weight" />
+        <result property="tenantCode" column="tenant_code" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="version" column="version" />
+        <result property="dr" column="dr" />
+    </resultMap>
+    <sql id="Base_Column_List">
+      id,      name,      abbreviate,      img_url,      thumbnail,      start_time,      end_time,      status,      weight,      tenant_code,      created_at,      created_by,      updated_at,      updated_by,      version,      dr    </sql>
+    <select id="findList" resultType="com.deepexi.content.domain.eo.BannerSet">
+        SELECT <include refid="Base_Column_List"/>
+        FROM coc_banner_set
+        WHERE dr=0
+        AND tenant_code = #{tenantId}
+        <include refid="common_where_if"/>
+        <if test="null != pks and pks.size() > 0">
+            AND id
+            IN
+            <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        ORDER BY weight
+    </select>
+
+    <select id="findListAboutManage" resultType="com.deepexi.content.domain.eo.BannerSet">
+        SELECT <include refid="Base_Column_List"/>
+        FROM coc_banner_set
+        WHERE dr=0
+        AND tenant_code = #{tenantId}
+        AND id
+        IN
+        <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY weight
+    </select>
+
+    <update id="deleteByIds">
+        UPDATE coc_banner_set
+        SET dr=1
+        WHERE id
+        IN
+        <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="getByName" resultType="com.deepexi.content.domain.eo.BannerSet">
+        SELECT <include refid="Base_Column_List"/>
+        FROM coc_banner_set
+        WHERE dr=0
+        AND name = #{name}
+        AND tenant_code = #{tenantId}
+        limit 1
+    </select>
+
+    <select id="getMaxWeight" resultType="java.lang.Integer">
+        SELECT max(weight)
+        FROM coc_banner_set
+        WHERE tenant_code = #{tenantId} limit 1
+    </select>
+
+    <select id="getByWeightSmall" resultType="com.deepexi.content.domain.eo.BannerSet">
+        SELECT  <include refid="Base_Column_List"/>
+        FROM coc_banner_set
+        WHERE dr=0
+        AND weight &lt; #{weight}
+        AND tenant_code = #{tenantId}
+        ORDER BY weight desc
+        limit 1
+    </select>
+
+    <select id="getByWeightBig" resultType="com.deepexi.content.domain.eo.BannerSet">
+        SELECT  <include refid="Base_Column_List"/>
+        FROM coc_banner_set
+        WHERE dr=0
+        AND weight &gt; #{weight}
+        AND tenant_code = #{tenantId}
+        ORDER BY weight asc
+        limit 1
+    </select>
+
+    <sql id="common_where_if">
+        <if test="null != query.name and '' != query.name">
+            AND name LIKE CONCAT('%',#{query.name},'%')
+        </if>
+        <if test="null != query.startTime">
+            AND unix_timestamp(created_at)  &gt;=  #{query.startTime}/1000
+        </if>
+        <if test="null != query.endTime">
+            AND unix_timestamp(created_at) &lt;= #{query.endTime}/1000
+        </if>
+    </sql>
+
+    <update id="updateStatus">
+        UPDATE coc_banner_set
+        set status = #{statusEnum.value}
+        where id = #{id}
+    </update>
+
+    <select id="frontPage" resultType="com.deepexi.content.domain.eo.BannerSet">
+        SELECT  <include refid="Base_Column_List"/>
+        FROM coc_banner_set
+        WHERE dr=0
+        AND status=0
+        AND ((SELECT NOW()) BETWEEN start_time AND end_time)
+        AND tenant_code = #{tenantId}
+        ORDER BY weight asc
+    </select>
+
+</mapper>

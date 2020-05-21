@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.EnterpriseZoneMapper">
+    <sql id="Base_Column_List">
+      id,
+      name,
+      status,
+      img_url,
+      details,
+      uv_count,
+      organization_id,
+      p_id,
+      weight,
+      tenant_code,
+      created_at,
+      created_by,
+      updated_at,
+      updated_by,
+      version,
+      dr
+    </sql>
+    <select id="findList" resultType="com.deepexi.content.domain.vo.EnterpriseZoneVo">
+        SELECT <include refid="Base_Column_List"/>
+        FROM coc_enterprise_zone
+        WHERE dr=0
+        AND tenant_code = #{tenantId}
+        ORDER BY weight ASC
+    </select>
+
+    <select id="getByName" resultType="com.deepexi.content.domain.eo.EnterpriseZone">
+        SELECT <include refid="Base_Column_List"/>
+        FROM coc_enterprise_zone
+        WHERE dr=0
+        AND name = #{name}
+        AND tenant_code = #{tenantId}
+        limit 1
+    </select>
+
+    <update id="deleteByIds">
+        UPDATE coc_enterprise_zone
+        set dr=1
+        where id
+        in
+        <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="getLinearTree" resultType="com.deepexi.common.domain.vo.LinearTreeVo">
+        SELECT <include refid="Base_Column_List"/>
+        id,
+        p_id AS 'parentId',
+        `name` AS 'label'
+        FROM coc_enterprise_zone
+        WHERE
+        tenant_code = #{tenantId} AND dr = 0
+        <if test="dto.name != null and dto.name != ''">
+            AND `name` = #{dto.name}
+        </if>
+        <if test="dto.pId != null and dto.pId != ''">
+            AND p_id = #{dto.pId}
+        </if>
+        ORDER BY weight ASC
+    </select>
+
+    <select id="getMaxWeight" resultType="java.lang.Integer">
+        SELECT max(weight)
+        FROM coc_enterprise_zone
+        WHERE tenant_code = #{tenantId} limit 1
+    </select>
+
+    <update id="addWeight">
+        update coc_enterprise_zone set weight=weight+1
+        where dr=0
+        AND weight <![CDATA[ >= ]]> #{weight}
+        AND tenant_code = #{tenantId}
+    </update>
+
+    <update id="addUvCount">
+        update coc_enterprise_zone set uv_count = uv_count + 1
+        where id = #{id}
+    </update>
+</mapper>

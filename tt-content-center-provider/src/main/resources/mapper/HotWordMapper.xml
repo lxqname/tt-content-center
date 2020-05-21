@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.HotWordMapper">
+    <resultMap type="com.deepexi.content.domain.dto.HotWordDto" id="HotWordDtoResult">
+        <result property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="searchNum" column="search_num" />
+        <result property="source" column="source" />
+        <result property="tagRed" column="tag_red" />
+        <result property="tenantCode" column="tenant_code" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="version" column="version" />
+        <result property="dr" column="dr" />
+    </resultMap>
+    <sql id="Base_Column_List">
+      id,      name,      search_num,      source,      tag_red,      tenant_code,      created_at,      created_by,      updated_at,      updated_by,      version,      dr    </sql>
+    <select id="findList" resultType="com.deepexi.content.domain.eo.HotWord">
+        SELECT <include refid="Base_Column_List"/> FROM hot_word WHERE dr=0
+    </select>
+    <insert id="batchInsert">
+        INSERT INTO hot_word
+        (        id,        name,        search_num,        source,        tag_red,        tenant_code,        created_at,        created_by,        updated_at,        updated_by,        version,        dr)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+            (            #{value.id},            #{value.name},            #{value.searchNum},            #{value.source},            #{value.tagRed},            #{value.tenantCode},            #{value.createdAt},            #{value.createdBy},            #{value.updatedAt},            #{value.updatedBy},            #{value.version},            #{value.dr})
+        </foreach>
+    </insert>
+    <update id="batchUpdate">
+        INSERT INTO hot_word
+        (        id,        name,        search_num,        source,        tag_red,        tenant_code,        created_at,        created_by,        updated_at,        updated_by,        version,        dr)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+            (            #{value.id},            #{value.name},            #{value.searchNum},            #{value.source},            #{value.tagRed},            #{value.tenantCode},            #{value.createdAt},            #{value.createdBy},            #{value.updatedAt},            #{value.updatedBy},            #{value.version},            #{value.dr})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        id=values(id),            name=values(name),            search_num=values(search_num),            source=values(source),            tag_red=values(tag_red),            tenant_code=values(tenant_code),            created_at=values(created_at),            created_by=values(created_by),            updated_at=values(updated_at),            updated_by=values(updated_by),            version=values(version),            dr=values(dr)    </update>
+    <update id="deleteByIds">
+        UPDATE coc_hot_word set dr=1 where id in
+        <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--根据id查询搜索次数-->
+    <select id="selectSearchNumById" parameterType="java.lang.String" resultType="int">
+        SELECT IFNULL(search_num,0) FROM coc_hot_word WHERE id=#{hotWordId} and dr=0
+    </select>
+
+    <!--查询自定义的热词id-->
+    <select id="selectCustomIds" parameterType="java.util.List" resultType="java.lang.String">
+        select id from coc_hot_word where dr=0 and source='自定义' and id in
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--根据id集合查询热词信息-->
+    <select id="selectHotWordsById" parameterType="java.util.List" resultType="com.deepexi.content.domain.vo.HotWordVo">
+        select id,name,search_num,source,tag_red from coc_hot_word where dr=0 and id in
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--查询推荐的热词信息-->
+    <select id="selectYhotWordsById" parameterType="java.util.List" resultType="com.deepexi.content.domain.dto.HotWordDto">
+        select id,name,source,tag_red from coc_hot_word
+        where dr=0 and id in
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+         order by search_num DESC
+    </select>
+
+    <!--指定id的热词搜索次数求和-->
+    <select id="sumSearchNum" parameterType="java.util.List" resultType="int">
+        SELECT IFNULL(SUM(search_num),0) FROM coc_hot_word WHERE  dr=0 AND id IN
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--根据id更新热词搜索次数-->
+    <update id="updateSearchNum" parameterType="java.lang.String">
+         update coc_hot_word set search_num=search_num+1 where id=#{hotWordId} and dr=0
+    </update>
+
+
+</mapper>

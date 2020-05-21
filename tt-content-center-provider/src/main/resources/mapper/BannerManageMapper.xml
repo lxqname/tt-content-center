@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.BannerManageMapper">
+    <resultMap type="com.deepexi.content.domain.dto.BannerManageDto" id="BannerManageDtoResult">
+        <result property="id" column="id" />
+        <result property="site" column="site" />
+        <result property="applicationOfAffiliation" column="application_of_affiliation" />
+        <result property="tenantCode" column="tenant_code" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="version" column="version" />
+        <result property="dr" column="dr" />
+    </resultMap>
+    <sql id="Base_Column_List">
+      id,      site,      application_of_affiliation,      tenant_code,      created_at,      created_by,      updated_at,      updated_by,      version,      dr    </sql>
+    <select id="findList" resultType="com.deepexi.content.domain.eo.BannerManage">
+        SELECT <include refid="Base_Column_List"/> FROM coc_banner_manage WHERE dr=0
+    </select>
+    <insert id="batchInsert">
+        INSERT INTO coc_banner_manage
+        (        id,        site,        application_of_affiliation,        tenant_code,        created_at,        created_by,        updated_at,        updated_by,        version,        dr)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+            (            #{value.id},            #{value.site},            #{value.applicationOfAffiliation},            #{value.tenantCode},            #{value.createdAt},            #{value.createdBy},            #{value.updatedAt},            #{value.updatedBy},            #{value.version},            #{value.dr})
+        </foreach>
+    </insert>
+    <update id="batchUpdate">
+        INSERT INTO coc_banner_manage
+        (        id,        site,        application_of_affiliation,        tenant_code,        created_at,        created_by,        updated_at,        updated_by,        version,        dr)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+            (            #{value.id},            #{value.site},            #{value.applicationOfAffiliation},            #{value.tenantCode},            #{value.createdAt},            #{value.createdBy},            #{value.updatedAt},            #{value.updatedBy},            #{value.version},            #{value.dr})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            id=values(id),            site=values(site),            application_of_affiliation=values(application_of_affiliation),            tenant_code=values(tenant_code),            created_at=values(created_at),            created_by=values(created_by),            updated_at=values(updated_at),            updated_by=values(updated_by),            version=values(version),            dr=values(dr)    </update>
+    <update id="deleteByIds">
+        UPDATE coc_banner_manage set dr=1 where id in
+        <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

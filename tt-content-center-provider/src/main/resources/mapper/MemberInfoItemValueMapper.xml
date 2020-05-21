@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.MemberInfoItemValueMapper">
+    <resultMap type="com.deepexi.content.domain.dto.MemberInfoItemValueDto" id="MemberInfoItemValueDtoResult">
+        <result property="id" column="id" />
+        <result property="itemValue" column="item_value" />
+        <result property="tenantCode" column="tenant_code" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="version" column="version" />
+        <result property="dr" column="dr" />
+    </resultMap>
+    <sql id="Base_Column_List">
+      id,      item_value,      tenant_code,      created_at,      created_by,      updated_at,      updated_by,      version,      dr    </sql>
+    <select id="findList" resultType="com.deepexi.content.domain.eo.MemberInfoItemValue">
+        SELECT <include refid="Base_Column_List"/> FROM member_info_item_value WHERE dr=0
+    </select>
+    <!--批量增加会员信息项值-->
+    <insert id="batchInsert">
+        INSERT INTO coc_member_info_item_value
+        (id,item_value,tenant_code,created_at,created_by)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+        (#{value.id},#{value.itemValue},#{value.tenantCode},#{value.createdAt},#{value.createdBy})
+        </foreach>
+    </insert>
+
+    <update id="batchUpdate">
+        INSERT INTO member_info_item_value
+        (id,item_value,tenant_code,created_at,created_by,updated_at,updated_by,version,dr)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+            (            #{value.id},            #{value.itemValue},            #{value.tenantCode},            #{value.createdAt},            #{value.createdBy},            #{value.updatedAt},            #{value.updatedBy},            #{value.version},            #{value.dr})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            id=values(id),            item_value=values(item_value),            tenant_code=values(tenant_code),            created_at=values(created_at),            created_by=values(created_by),            updated_at=values(updated_at),            updated_by=values(updated_by),            version=values(version),            dr=values(dr)    </update>
+
+    <!--根据valueIds集合批量删除-->
+    <update id="deleteByIds" parameterType="java.util.List">
+        UPDATE coc_member_info_item_value
+        set dr=1
+        where
+        dr=0 and id in
+        <foreach collection="pks"  index="index"  item="id"  open="("  separator=","  close=")" >
+            #{id}
+        </foreach>
+    </update>
+
+    <!--根据id查找会员信息值-->
+    <select id="findById" parameterType="java.util.List"  resultType="java.lang.String">
+        select item_value
+        from coc_member_info_item_value
+        where
+        dr=0 and id in
+        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+
+    </select>
+
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.PopupMemberLevelRelationMapper">
+    <sql id="Base_Column_List">
+      id,      popup_id,      member_level_id,     tenant_code,      created_at,      created_by,      updated_at,      updated_by,      version,      dr    </sql>
+
+    <select id="getByPopupId" resultType="com.deepexi.content.domain.eo.PopupMemberLevelRelation">
+        SELECT <include refid="Base_Column_List"/> FROM coc_popup_member_level_relation
+        WHERE dr=0
+        AND popup_id=#{popupId}
+        AND tenant_code = #{tenantId}
+    </select>
+    <update id="deleteByPopupId">
+        UPDATE coc_popup_member_level_relation
+        set dr=1
+        WHERE popup_id=#{popupId}
+    </update>
+</mapper>

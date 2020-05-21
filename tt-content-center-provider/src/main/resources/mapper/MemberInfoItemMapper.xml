@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--客户映射 指定到dao接口 -->
+<mapper namespace="com.deepexi.content.mapper.MemberInfoItemMapper">
+    <resultMap type="com.deepexi.content.domain.dto.MemberInfoItemDto" id="MemberInfoItemDtoResult">
+        <result property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="tableAttribute" column="table_attribute" />
+        <result property="fieldType" column="field_type" />
+        <result property="itemType" column="item_type" />
+        <result property="isInterest" column="is_interest" />
+        <result property="isLabel" column="is_label" />
+        <result property="status" column="status" />
+        <result property="sequence" column="sequence" />
+        <result property="tenantCode" column="tenant_code" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdBy" column="created_by" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedBy" column="updated_by" />
+        <result property="version" column="version" />
+        <result property="dr" column="dr" />
+    </resultMap>
+    <sql id="Base_Column_List">
+      id,      name,      table_attribute,      field_type,      item_type,      is_interest,      is_label,      status,      sequence,      tenant_code,      created_at,      created_by,      updated_at,      updated_by,      version,      dr    </sql>
+    <select id="findList" resultType="com.deepexi.content.domain.eo.MemberInfoItem">
+        SELECT <include refid="Base_Column_List"/> FROM member_info_item WHERE dr=0
+    </select>
+    <insert id="batchInsert">
+        INSERT INTO member_info_item
+        (        id,        name,        table_attribute,        field_type,        item_type,        is_interest,        is_label,        status,        sequence,        tenant_code,        created_at,        created_by,        updated_at,        updated_by,        version,        dr)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+            (            #{value.id},            #{value.name},            #{value.tableAttribute},            #{value.fieldType},            #{value.itemType},            #{value.isInterest},            #{value.isLabel},            #{value.status},            #{value.sequence},            #{value.tenantCode},            #{value.createdAt},            #{value.createdBy},            #{value.updatedAt},            #{value.updatedBy},            #{value.version},            #{value.dr})
+        </foreach>
+    </insert>
+    <update id="batchUpdate">
+        INSERT INTO member_info_item
+        (        id,        name,        table_attribute,        field_type,        item_type,        is_interest,        is_label,        status,        sequence,        tenant_code,        created_at,        created_by,        updated_at,        updated_by,        version,        dr)
+        VALUES
+        <foreach collection="eo" index="index" item="value" separator=",">
+            (            #{value.id},            #{value.name},            #{value.tableAttribute},            #{value.fieldType},            #{value.itemType},            #{value.isInterest},            #{value.isLabel},            #{value.status},            #{value.sequence},            #{value.tenantCode},            #{value.createdAt},            #{value.createdBy},            #{value.updatedAt},            #{value.updatedBy},            #{value.version},            #{value.dr})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            id=values(id),            name=values(name),            table_attribute=values(table_attribute),            field_type=values(field_type),            item_type=values(item_type),            is_interest=values(is_interest),            is_label=values(is_label),            status=values(status),            sequence=values(sequence),            tenant_code=values(tenant_code),            created_at=values(created_at),            created_by=values(created_by),            updated_at=values(updated_at),            updated_by=values(updated_by),            version=values(version),            dr=values(dr)    </update>
+    <update id="deleteByIds">
+        UPDATE member_info_item set dr=1 where id in
+        <foreach collection="pks" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--分页查询,获取会员信息表上有用字段-->
+    <select id="findPage" parameterType="com.deepexi.content.domain.dto.MemberInfoItemConditionDto" resultType="com.deepexi.content.domain.vo.MemberInfoItemVo">
+        select id,name,table_attribute,field_type,item_type,is_interest,is_label,status,sequence
+        from coc_member_info_item tb
+        where
+        dr=0 and tenant_code=#{tenantCode}
+        <if test="name != null and name != ''">
+            and name like #{name} "%"
+        </if>
+
+        <if test="fieldType != null and fieldType !=0">
+            and field_type =#{fieldType }
+        </if>
+
+        <if test="itemType != null and itemType !=0">
+
+            <if test="itemType == 3">
+                and item_type =#{itemType }
+            </if>
+            <if test="itemType != 3">
+                and (item_type =1 or item_type=2)
+            </if>
+
+        </if>
+        order by sequence
+    </select>
+
+    <!--分页查询会员信息项展示到兴趣项选择页面(还未同步为兴趣项的)-->
+    <select id="findPageToInterest" parameterType="java.lang.String" resultType="com.deepexi.content.domain.vo.MemberToInterestVo">
+        select id,name,field_type,item_type,status
+        from coc_member_info_item
+        where
+        dr=0 and tenant_code=#{tenantCode} and item_type !=1 and is_interest=0 and status=1
+    </select>
+
+
+    <!--查询最大序列号-->
+    <select id="selectMaxSequence" resultType="int">
+        select IFNULL(MAX(sequence),0)
+        from coc_member_info_item
+    </select>
+
+    <!--根据id查询是否满足删除条件-->
+    <select id="selectDeleteConditionsById" parameterType="java.lang.String" resultType="com.deepexi.content.domain.vo.MemberInfoItemVo">
+        select item_type,is_interest,status
+        from coc_member_info_item
+        where
+        id=#{id} and dr=0
+    </select>
+
+    <!--根据id查sequence-->
+    <select id="selectSequenceById" parameterType="java.lang.String" resultType="int">
+        select ifnull(sequence,0)
+        from coc_member_info_item
+        where
+        id=#{id} and dr=0
+    </select>
+
+    <!--根据sequence查id，sequence(小于sequence的第一个)-->
+    <select id="selectIdByUpSequence" parameterType="int" resultType="com.deepexi.content.domain.vo.MemberInfoItemVo">
+        SELECT id,sequence
+        FROM coc_member_info_item
+        WHERE
+        sequence &lt; #{sequence}  AND dr=0 ORDER BY sequence DESC limit 1
+    </select>
+
+    <!--根据sequence查id，sequence(大于sequence的第一个)-->
+    <select id="selectIdByDownSequence" parameterType="int" resultType="com.deepexi.content.domain.vo.MemberInfoItemVo">
+        SELECT id,sequence
+        FROM coc_member_info_item
+        WHERE
+        sequence &gt; #{sequence}  AND dr=0 ORDER BY sequence  limit 1
+    </select>
+
+    <!--查询相关信息到H5页面-->
+    <select id="selectInfoToH5ById" parameterType="java.lang.String" resultType="com.deepexi.content.domain.dto.MemberInfoItemDto">
+        select table_attribute,field_type,item_type from coc_member_info_item
+        where
+        dr=0 and id=#{memberInfoId} limit 1
+    </select>
+
+    <!--验证LowerTableAttribute唯一性-->
+    <select id="checkLowerTableAttribute" parameterType="java.lang.String" resultType="java.lang.String">
+        select id from coc_member_info_item where dr=0 and table_attribute=#{lowerTableAttribute}
+    </select>
+</mapper>
